@@ -14,9 +14,14 @@ def calcular_merito(w, d, gf, gc):
     factor_goles = gf / (gc + 1.0)
     return rendimiento * factor_goles
 
-def calcular_pf_absoluto(m, u, r):
-    """Calcula el Puntaje de Fuerza Absoluto"""
-    return (m * 0.5) + (u * 0.2) - (r * 0.3)
+def def calcular_pf_absoluto(m, u, r):
+    # Usamos un valor base (por ejemplo, 10) para evitar que los restas den negativo
+    # A mejor ubicación (número menor), sumamos más puntaje.
+    puntaje_posicion = max(0, 21 - u)  # Asumiendo una liga de 20 equipos
+    puntaje_rival = max(0, r) 
+    
+    return (m * 0.5) + (puntaje_posicion * 0.2) + (puntaje_rival * 0.3)
+
 
 # --- EJEMPLO DE USO RÁPIDO ---
 print("--- SISTEMA MUR-FUTBOL-RIOS MATIAS ---")

@@ -14,7 +14,7 @@ def calcular_merito(w, d, gf, gc):
     factor_goles = gf / (gc + 1.0)
     return rendimiento * factor_goles
 
-def def calcular_pf_absoluto(m, u, r):
+ def calcular_pf_absoluto(m, u, r):
     # Usamos un valor base (por ejemplo, 10) para evitar que los restas den negativo
     # A mejor ubicación (número menor), sumamos más puntaje.
     puntaje_posicion = max(0, 21 - u)  # Asumiendo una liga de 20 equipos

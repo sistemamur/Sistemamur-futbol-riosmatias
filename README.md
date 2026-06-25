@@ -201,12 +201,11 @@ def evaluar_contexto_avanzado(e1, e2):
     return mA1, mD1, mA2, mD2
 
 def calcular_marcador_exacto(l1, l2):
-    # Traduce los índices lambda corregidos a goles enteros plausibles
-    goles_l = math.floor(l1) if l1 >= 1 else (1 if l1 > 0.4 else 0)
-    goles_v = math.floor(l2) if l2 >= 1 else (1 if l2 > 0.4 else 0)
-    if abs(l1 - l2) < 0.15: # Forzar empate técnico en números si el λ es igual
-        return goles_l, goles_l
+    # Traduce los índices lambda corregidos a goles enteros usando redondeo normal
+    goles_l = round(l1)
+    goles_v = round(l2)
     return goles_l, goles_v
+
 
 def procesar_jornada_pro(partidos):
     print("\n🔮 --- SIMULACIÓN AVANZADA SISTEMA MUR PRO (MUNDIAL 2026) ---")

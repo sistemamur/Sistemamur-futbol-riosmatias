@@ -1,10 +1,8 @@
 # Sistemamur-futbol-riosmatias
-Calculadora futbolistica
-# Sistemamur-futbol-riosmatias
 
 Calculadora futbolística para la predicción de partidos utilizando modelos estadísticos y variables contextuales.
 
-## 🐍 Código del Predictor
+## ⚽ Código del Predictor
 
 ```python
 import math
@@ -130,6 +128,8 @@ condiciones_encuentro = {
 # --- EJECUTAR PREDICCIÓN ---
 predecir_partido_avanzado(seleccion_1, seleccion_2, condiciones_encuentro)
 ```
+
+
 
 
 

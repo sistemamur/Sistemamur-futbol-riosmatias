@@ -137,7 +137,131 @@ for local, visitante, ctx_l, ctx_v in jornada_hoy:
     l, e, v = predecir_partido(local, visitante, ctx_l, ctx_v, {'altura_ciudad': 0})
     print(f"⚽ {local} vs {visitante} -> Local: {l:.2f}% | Empate: {e:.2f}% | Visitante: {v:.2f}%")
 
+# =====================================================================
+# 🚀 EXTENSIÓN SISTEMA MUR PRO: MODIFICADORES AGRESIVOS Y ESTADÍSTICAS FINAS
+# =====================================================================
 
+def evaluar_contexto_pro(e1, e2, condiciones):
+    # Multiplicadores base hiperinflados para forzar tendencias > 70%
+    mod_atk_e1, mod_def_e1, mod_atk_e2, mod_def_e2 = 1.0, 1.0, 1.0, 1.0
+
+    # 1. Filtro de Creencias Religiosas / Misticismo Cultural (Afecta moral y fe en la épica)
+    if e1.get('creencia_religiosa_fuerte'): mod_atk_e1 *= 1.30  # +30% empuje ofensivo
+    if e2.get('creencia_religiosa_fuerte'): mod_atk_e2 *= 1.30
+
+    # 2. Efecto de Optimismo / Eliminación (Urgencia vs Desmotivación total)
+    if e1.get('ya_eliminado'): m_atk_e1, m_def_e1 = mod_atk_e1 * 0.40, mod_def_e1 * 0.40  # Se cae el equipo
+    if e2.get('ya_eliminado'): m_atk_e2, m_def_e2 = mod_atk_e2 * 0.40, mod_def_e2 * 0.40
+    if e1.get('urgencia_clasificar') and not e1.get('ya_eliminado'): mod_atk_e1 *= 1.45  # Ultra ofensivo
+    if e2.get('urgencia_clasificar') and not e2.get('ya_eliminado'): mod_atk_e2 *= 1.45
+
+    # 3. Desgaste por Cansancio (Minutos acumulados en las piernas)
+    mod_def_e1 *= (1 - (e1.get('minutos_acumulados_promedio', 180) / 2000))
+    mod_def_e2 *= (1 - (e2.get('minutos_acumulados_promedio', 180) / 2000))
+
+    # 4. Disciplina Extrema (Efecto acumulativo de Tarjetas Amarillas)
+    mod_def_e1 *= (1 - (e1.get('tarjetas_amarillas_torneo', 0) * 0.08))
+    mod_def_e2 *= (1 - (e2.get('tarjetas_amarillas_torneo', 0) * 0.08))
+
+    return mod_atk_e1, mod_def_e1, mod_atk_e2, mod_def_e2
+
+# ... [Funciones de predicción y ejemplos de jornada avanzados] ...
+
+
+
+
+# =====================================================================
+# 🚀 EXTENSIÓN SISTEMA MUR PRO: INTENSIDAD EXTREMA Y MARCADORES EN VIVO
+# =====================================================================
+
+def evaluar_contexto_avanzado(e1, e2):
+    # Multiplicadores drásticos para forzar probabilidades > 70%
+    mA1, mD1, mA2, mD2 = 1.0, 1.0, 1.0, 1.0
+
+    # 1. Creencias Religiosas y Misticismo Cultural (+35% de convicción)
+    if e1.get('fe_misticismo'): mA1 *= 1.35
+    if e2.get('fe_misticismo'): mA2 *= 1.35
+
+    # 2. Efecto de Optimismo / Eliminación Total
+    if e1.get('ya_eliminado'): mA1 *= 0.30; mD1 *= 0.50
+    if e2.get('ya_eliminado'): mA2 *= 0.30; mD2 *= 0.50
+    if e1.get('urgencia_clasificar') and not e1.get('ya_eliminado'): mA1 *= 1.50
+    if e2.get('urgencia_clasificar') and not e2.get('ya_eliminado'): mA2 *= 1.50
+
+    # 3. Desgaste por Cansancio Extremo (Minutos en fase de grupos)
+    mA1 *= (1 - (e1.get('minutos_jugados', 180) * 0.001))
+    mD1 *= (1 - (e1.get('minutos_jugados', 180) * 0.0015))
+    mA2 *= (1 - (e2.get('minutos_jugados', 180) * 0.001))
+    mD2 *= (1 - (e2.get('minutos_jugados', 180) * 0.0015))
+
+    # 4. Disciplina: Acumulación de Tarjetas Amarillas
+    mD1 *= (1 - (e1.get('amarillas', 0) * 0.07))
+    mD2 *= (1 - (e2.get('amarillas', 0) * 0.07))
+
+    return mA1, mD1, mA2, mD2
+
+def calcular_marcador_exacto(l1, l2):
+    # Traduce los índices lambda corregidos a goles enteros plausibles
+    goles_l = math.floor(l1) if l1 >= 1 else (1 if l1 > 0.4 else 0)
+    goles_v = math.floor(l2) if l2 >= 1 else (1 if l2 > 0.4 else 0)
+    if abs(l1 - l2) < 0.15: # Forzar empate técnico en números si el λ es igual
+        return goles_l, goles_l
+    return goles_l, goles_v
+
+def procesar_jornada_pro(partidos):
+    print("\n🔮 --- SIMULACIÓN AVANZADA SISTEMA MUR PRO (MUNDIAL 2026) ---")
+    for local, visitante, ctx_l, ctx_v in partidos:
+        # Extraer estadísticas base de tu BD_MUNDIAL original
+        gf_l, gc_l = BD_MUNDIAL.get(local, (12, 12))
+        gf_v, gc_v = BD_MUNDIAL.get(visitante, (12, 12))
+        
+        # Calcular lambdas base según tu lógica original
+        l_base_l = (gf_l / 10) * (gc_v / 10)
+        l_base_v = (gf_v / 10) * (gc_l / 10)
+        
+        # Modificadores Pro extremos
+        mA1, mD1, mA2, mD2 = evaluar_contexto_avanzado(ctx_l, ctx_v)
+        lambda_final_l = l_base_l * mA1 * mD2
+        lambda_final_v = l_base_v * mA2 * mD1
+        
+        # Re-calcular la matriz de Poisson de tu código para las probabilidades
+        p_l, p_e, p_v = 0.0, 0.0, 0.0
+        for g_l in range(7):
+            for g_v in range(7):
+                p_g_l = calcular_poisson(lambda_final_l, g_l)
+                p_g_v = calcular_poisson(lambda_final_v, g_v)
+                res = p_g_l * p_g_v
+                if g_l > g_v: p_l += res
+                elif g_l == g_v: p_e += res
+                else: p_v += res
+        
+        tot = p_l + p_e + p_v
+        if tot > 0: p_l /= tot; p_e /= tot; p_v /= tot
+        
+        # Obtener los goles finales calculados en números
+        g_l, g_v = calcular_marcador_exacto(lambda_final_l, lambda_final_v)
+        
+        print(f"⚽ {local} vs {visitante}")
+        print(f"   📊 Probabilidades -> Local: {p_l*100:.2f}% | Empate: {p_e*100:.2f}% | Visitante: {p_v*100:.2f}%")
+        print(f"   🏆 Marcador numérico calculado: {local} {g_l} - {g_v} {visitante}\n")
+
+# --- NUEVA LISTA DE PARTIDOS CON TU CONTEXTO SOLICITADO ---
+jornada_pro_hoy = [
+    ("Ecuador", "Germany", 
+     {"fe_misticismo": True, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 180, "amarillas": 4},
+     {"fe_misticismo": False, "ya_eliminado": False, "urgencia_clasificar": False, "minutos_jugados": 120, "amarillas": 1}),
+     
+    ("Paraguay", "Australia", 
+     {"fe_misticismo": True, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 185, "amarillas": 5},
+     {"fe_misticismo": False, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 170, "amarillas": 2}),
+     
+    ("Turkiye", "USA", 
+     {"fe_misticismo": False, "ya_eliminado": True, "urgencia_clasificar": False, "minutos_jugados": 190, "amarillas": 6},
+     {"fe_misticismo": True, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 110, "amarillas": 0})
+]
+
+# Ejecutar el nuevo motor Pro
+procesar_jornada_pro(jornada_pro_hoy)
 
 
 

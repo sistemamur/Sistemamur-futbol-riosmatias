@@ -273,6 +273,17 @@ simular_sistema_murios_esoterico_completo(
 
 
 
+# Modificación al algoritmo para incorporar la variable esotérica
+def calcular_prediccion_muriossmatias(equipo1, equipo2, datos_logicos, datos_esotericos):
+    # 1. Procesamiento de variables lógicas (85% del peso)
+    score_logico = procesar_datos_futbol(datos_logicos)
+    
+    # 2. Inyección de la nueva variable Esotérica (15% del peso)
+    # Analiza: Carta astral de los DT, energías de las camisetas y numerología del día
+    score_misticismo = procesar_astrologia_y_tarot(datos_esotericos)
+    
+    # 3. Resultado final combinado
+    return (score_logico * 0.85) + (score_misticismo * 0.15)
 
     
 

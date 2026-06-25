@@ -155,8 +155,119 @@ partido_a_testear = {
 }
 
 # Ejecutar el sistema predictivo
-predecir_partido_sistemamuriosmatias(partido_a_testear)
 
+import random
+import time
+
+def rastrear_predicciones_esotericas_web(equipo1, equipo2):
+    """
+    MODULO 1: SImula el scraping web e internet de astrólogos,
+    tarotistas y videntes globales. Convierte palabras en métricas.
+    """
+    print("🌐 [SCRAPING] Iniciando rastreo de blogs esotéricos y redes sociales...")
+    time.sleep(1) # Simula el tiempo de carga de red
+    
+    # Simulación de recuento de predicciones encontradas en la nube
+    votos_e1 = random.randint(10, 50)
+    votos_e2 = random.randint(10, 50)
+    votos_empate = random.randint(5, 20)
+    
+    total_votos = votos_e1 + votos_e2 + votos_empate
+    
+    # Normalización matemática a índices entre 0.0 y 1.0
+    indice_mistico_e1 = round(votos_e1 / total_votos, 2)
+    indice_mistico_e2 = round(votos_e2 / total_votos, 2)
+    
+    print(f"✅ [SCRAPING] Rastreo completado con éxito.")
+    print(f"🔮 Tendencia Mística Detectada -> {equipo1}: {indice_mistico_e1} | {equipo2}: {indice_mistico_e2}\n")
+    
+    return indice_mistico_e1, indice_mistico_e2
+
+
+def simular_sistema_murios_esoterico_completo(equipo1, equipo2, datos_deportivos, datos_misticos_base):
+    """
+    MODULO 2: Algoritmo de calibración híbrido.
+    Fusión: 70% Parámetros Científicos / 30% Parámetros Esotéricos.
+    """
+    print("=" * 60)
+    print("--- SISTEMAMURIOSMATIAS EN EJECUCIÓN (VERSIÓN HÍBRIDA) ---")
+    print("=" * 60)
+    
+    # 1. Ejecutar el rastreador en internet para actualizar las variables astrales
+    ind_web_e1, ind_web_e2 = rastrear_predicciones_esotericas_web(equipo1, equipo2)
+    
+    # 2. Procesamiento de Variables Lógicas (Peso: 70% del total)
+    # Goles (30%), Jerarquía (25%), Gestión de Presión (15%), Físico (15%), Sede (15%)
+    score_logico_e1 = (datos_deportivos['goles_e1'] * 0.30) + \
+                      (datos_deportivos['titulos_e1'] * 0.25) + \
+                      ((100 - datos_deportivos['presion_e1']) * 0.15) + \
+                      (datos_deportivos['fisico_e1'] * 0.15) + \
+                      (datos_deportivos['sede_e1'] * 0.15)
+
+    score_logico_e2 = (datos_deportivos['goles_e2'] * 0.30) + \
+                      (datos_deportivos['titulos_e2'] * 0.25) + \
+                      ((100 - datos_deportivos['presion_e2']) * 0.15) + \
+                      (datos_deportivos['fisico_e2'] * 0.15) + \
+                      (datos_deportivos['sede_e2'] * 0.15)
+
+    # 3. Procesamiento de Variables Esotéricas (Peso: 30% del total)
+    # Numerología (20%), Rastreo Web / Tránsito Astral (40%), Vibración Color (40%)
+    score_mistico_e1 = (datos_misticos_base['num_fundacion_e1'] * 0.20) + \
+                       (ind_web_e1 * 0.40) + \
+                       (datos_misticos_base['vibracion_color_e1'] * 0.40)
+
+    score_mistico_e2 = (datos_misticos_base['num_fundacion_e2'] * 0.20) + \
+                       (ind_web_e2 * 0.40) + \
+                       (datos_misticos_base['vibracion_color_e2'] * 0.40)
+
+    # 4. Fusión y Calibración Final del Algoritmo
+    final_e1 = (score_logico_e1 * 0.70) + (score_mistico_e1 * 0.30)
+    final_e2 = (score_logico_e2 * 0.70) + (score_mistico_e2 * 0.30)
+
+    # Convertir a porcentajes limpios
+    total_puntos = final_e1 + final_e2
+    prob_e1 = (final_e1 / total_puntos) * 100
+    prob_e2 = (final_e2 / total_puntos) * 100
+    
+    # Cálculo matemático para el factor de Empate Técnico
+    prob_empate = abs(prob_e1 - prob_e2) * 0.35
+    prob_e1_final = round(prob_e1 - (prob_empate / 2), 2)
+    prob_e2_final = round(prob_e2 - (prob_empate / 2), 2)
+    prob_empate_final = round(prob_empate, 2)
+
+    # 5. Output Estructurado de Resultados
+    print(f"📊 --- RESULTADO DE LA PROYECCIÓN --- 📊")
+    print(f"🏟️ Partido: {equipo1} vs {equipo2}")
+    print(f"🟢 Probabilidad Victoria {equipo1}: {prob_e1_final}%")
+    print(f"⚪ Probabilidad de Empate: {prob_empate_final}%")
+    print(f"🔵 Probabilidad Victoria {equipo2}: {prob_e2_final}%")
+    print("=" * 60)
+
+
+# ============================================================================
+# CONFIGURACIÓN DE DATOS (Mundial 2026: Costa de Marfil vs Curazao)
+# ============================================================================
+
+datos_deportivos_partido = {
+    'goles_e1': 2.1, 'goles_e2': 0.8,       # Goles promedio últimos 15 partidos
+    'titulos_e1': 3, 'titulos_e2': 0,        # Copas oficiales de su confederación
+    'presion_e1': 30, 'presion_e2': 85,      # % de nerviosismo/riesgo de eliminación
+    'fisico_e1': 92, 'fisico_e2': 68,        # Rendimiento en velocidad y despliegue
+    'sede_e1': 50, 'sede_e2': 50             # Sede neutral (Filadelfia)
+}
+
+datos_misticos_partido = {
+    'num_fundacion_e1': 9, 'num_fundacion_e2': 5,    # Reducción numerológica pitagórica
+    'vibracion_color_e1': 0.85, 'vibracion_color_e2': 0.60  # Energía cromática del uniforme
+}
+
+# Ejecución automática del sistema unificado
+simular_sistema_murios_esoterico_completo(
+    equipo1="Costa de Marfil", 
+    equipo2="Curazao", 
+    datos_deportivos=datos_deportivos_partido, 
+    datos_misticos_base=datos_misticos_partido
+)
 
 
 

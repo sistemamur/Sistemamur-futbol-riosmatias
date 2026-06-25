@@ -289,6 +289,45 @@ def simular_partido_en_vivo(local, visitante, lambda_l, lambda_v):
     print(f"🏁 Fin del partido. Resultado definitivo: {local} {goles_l} - {goles_v} {visitante}\n")
 
 
+import math
+
+# --- 1. BASE DE DATOS MUNDIALISTA ---
+BD_MUNDIAL_ES = {
+    "México": (1.6, 1.2), "Sudáfrica": (1.1, 1.3), "Brasil": (2.1, 0.9), "Alemania": (2.0, 1.0),
+    "Costa de Marfil": (1.4, 1.1), "Ecuador": (1.3, 1.2), "Paraguay": (1.3, 1.2), "Australia": (1.3, 1.2)
+}
+
+# --- 2. NUEVA LÓGICA DE EQUILIBRIO ---
+def evaluar_contexto_equilibrado(e1, e2):
+    mA1, mD1, mA2, mD2 = 1.0, 1.0, 1.0, 1.0
+    # Filtro 1: Calidad de Plantel y Recambios
+    recambio_e1 = e1.get('calidad_recambios', 5)
+    bajas_e1 = e1.get('lesionados', 0)
+    mA1 *= (1 - max(0, (bajas_e1 * 0.08) - (recambio_e1 * 0.01)))
+    # Filtro 2: Idiosincrasia y Resiliencia
+    if e1.get('idiosincrasia_resiliente', False): mD1 *= 1.05
+    # Filtro 3: Mitigador de Fatiga
+    mA1 *= (1 - (e1.get('minutos_jugados', 180) * 0.0003))
+    return mA1, mD1, mA2, mD2
+
+# --- 3. MOTOR DE PROCESAMIENTO ---
+def procesar_jornada_equilibrada(partidos):
+    print("🔮 --- PREDICCIONES EQUILIBRADAS ---")
+    for local, visitante, ctx_l, ctx_v in partidos:
+        prom_f_l, prom_c_l = BD_MUNDIAL_ES.get(local, (1.2, 1.2))
+        prom_f_v, prom_c_v = BD_MUNDIAL_ES.get(visitante, (1.2, 1.2))
+        mA1, mD1, mA2, mD2 = evaluar_contexto_equilibrado(ctx_l, ctx_v)
+        lambda_l = prom_f_l * mA1 * prom_c_v * mD2
+        lambda_v = prom_f_v * mA2 * prom_c_l * mD1
+        print(f"⚽ {local} vs {visitante} -> Marcador sugerido: {math.floor(lambda_l)} - {math.floor(lambda_v)}")
+
+# --- 4. CONFIGURACIÓN ---
+jornada_hoy = [
+    ("Ecuador", "Alemania", 
+     {"calidad_recambios": 6, "lesionados": 1, "idiosincrasia_resiliente": True, "minutos_jugados": 180}, 
+     {"calidad_recambios": 9, "lesionados": 0, "idiosincrasia_resiliente": True, "minutos_jugados": 180})
+]
+procesar_jornada_equilibrada(jornada_hoy)
 
 
 

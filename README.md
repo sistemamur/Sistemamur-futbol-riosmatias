@@ -263,6 +263,31 @@ jornada_pro_hoy = [
 # Ejecutar el nuevo motor Pro
 procesar_jornada_pro(jornada_pro_hoy)
 
+import random
+
+def simular_partido_en_vivo(local, visitante, lambda_l, lambda_v):
+    print(f"🏁 ¡Arranca el partido en vivo: {local} vs {visitante}!")
+    goles_l, goles_v = 0, 0
+    
+    # Simulación minuto a minuto (simplificada a 9 bloques de 10 minutos)
+    for bloque in range(1, 10):
+        minuto = bloque * 10
+        # Probabilidad de gol en este bloque (Poisson fraccionado)
+        if random.random() < (lambda_l / 9):
+            goles_l += 1
+            print(f"⚽ ¡GOOOL de {local}! Minuto {minuto}. Marcador: {local} {goles_l} - {goles_v} {visitante}")
+        if random.random() < (lambda_v / 9):
+            goles_v += 1
+            print(f"⚽ ¡GOOOL de {visitante}! Minuto {minuto}. Marcador: {local} {goles_l} - {goles_v} {visitante}")
+            
+        # EVENTO EXCLUSIVO: Alerta de cansancio crítico en vivo
+        if bloque == 7: # Minuto 70
+            print(f"⏳ Minuto 70: El cansancio acumulado empieza a pasar factura en las defensas...")
+            lambda_l *= 1.2  # El partido se rompe y se vuelve más caótico (más goles)
+            lambda_v *= 1.2
+
+    print(f"🏁 Fin del partido. Resultado definitivo: {local} {goles_l} - {goles_v} {visitante}\n")
+
 
 
 

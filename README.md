@@ -1,427 +1,160 @@
-import math
 
-# --- 1. BASE DE DATOS MUNDIALISTA COMPLETA (48 SELECCIONES) ---
-# Estructura: "Nombre_Equipo": (Goles_A_Favor_Promedio_x10, Goles_En_Contra_Promedio_x10)
-BD_MUNDIAL = {
-    # Grupo A
-    "Mexico": (18, 9), "South Africa": (10, 14), "South Korea": (14, 11), "Czechia": (12, 12),
-    # Grupo B
-    "Canada": (15, 10), "Bosnia and Herzegovina": (11, 13), "Qatar": (10, 15), "Switzerland": (16, 9),
-    # Grupo C
-    "Brazil": (22, 7), "Morocco": (15, 9), "Haiti": (8, 18), "Scotland": (11, 14),
-    # Grupo D
-    "USA": (19, 10), "Paraguay": (11, 12), "Australia": (13, 11), "Turkiye": (14, 13),
-    # Grupo E
-    "Germany": (24, 8), "Curacao": (9, 19), "Ivory Coast": (16, 10), "Ecuador": (13, 11),
-    # Grupo F
-    "Netherlands": (21, 9), "Japan": (17, 10), "Sweden": (14, 12), "Tunisia": (10, 14),
-    # Grupo G
-    "Belgium": (19, 10), "Egypt": (13, 12), "Iran": (14, 11), "New Zealand": (9, 16),
-    # Grupo H
-    "Spain": (23, 7), "Cabo Verde": (11, 15), "Saudi Arabia": (12, 13), "Uruguay": (18, 10),
-    # Grupo I
-    "France": (25, 6), "Senegal": (14, 11), "Iraq": (11, 14), "Norway": (15, 12),
-    # Grupo J
-    "Argentina": (26, 5), "Algeria": (13, 12), "Austria": (14, 11), "Jordan": (10, 15),
-    # Grupo K
-    "Portugal": (22, 8), "DR Congo": (11, 13), "Uzbekistan": (12, 12), "Colombia": (17, 10),
-    # Grupo L
-    "England": (21, 8), "Croatia": (15, 11), "Ghana": (13, 13), "Panama": (10, 16)
-}
+# ============================================================================
+# INTRODUCCIÓN: SISTEMAMURIOSMATIAS
+# Sistema Avanzado de Predicción de Partidos del Mundial 2026
+# ============================================================================
 
-# --- 2. CALCULADORA MATEMÁTICA ---
-def calcular_poisson(lambda_goles, k):
-    """Calcula la probabilidad de que ocurran exactamente k goles."""
-    return (math.exp(-lambda_goles) * (lambda_goles ** k)) / math.factorial(k)
+import pandas as pd
+import numpy as np
+from sklearn.model_selection import train_test_split
+from sklearn.preprocessing import LabelEncoder
+import lightgbm as lgb
+import warnings
+warnings.filterwarnings('ignore')
 
-# --- 3. LÓGICA DE FILTROS CONTEXTUALES ORIGINALES ---
-def evaluar_contexto(e1, e2, condiciones):
-    mod_atk_e1, mod_def_e1, mod_atk_e2, mod_def_e2 = 1.0, 1.0, 1.0, 1.0
+print("=" * 60)
+print("--- SISTEMAMURIOSMATIAS ACTIVADO ---")
+print("Procesando variables físicas, históricas, geográficas y culturales...")
+print("=" * 60)
 
-    # 1. Filtro Altura
-    if condiciones.get('altura_ciudad', 0) >= 2500:
-        mod_atk_e1 *= 1.15
-        mod_atk_e2 *= 0.85
+# 1. GENERACIÓN DE LA BASE DE DATOS DE ENTRENAMIENTO (Simulación del Mundial)
+def generar_dataset_ejemplo():
+    data = {
+        # Datos del Encuentro
+        'partido_id': range(1, 11),
+        'local': ['Argentina', 'Francia', 'Brasil', 'España', 'Alemania', 'Marruecos', 'Japón', 'Portugal', 'Uruguay', 'Inglaterra'],
+        'visitante': ['Arabia Saudita', 'Australia', 'Corea del Sur', 'Costa Rica', 'Japón', 'Croacia', 'España', 'Ghana', 'Corea del Sur', 'EEUU'],
+        'ciudad_sede': ['Dallas', 'Los Angeles', 'Miami', 'New York', 'Mexico City', 'Toronto', 'Vancouver', 'Atlanta', 'Houston', 'Boston'],
+        
+        # Historial Reciente (Últimos 15 partidos)
+        'puntos_ultimos_15_local':,
+        'puntos_ultimos_15_vis':,
+        'goles_favor_15_local':,
+        'goles_contra_15_local':,
+        'goles_favor_15_vis':,
+        'goles_contra_15_vis':,
+        
+        # Jerarquía e Historia (Rankings, títulos, experiencia en escala 1-10)
+        'jerarquia_plantel_local': [9.5, 9.3, 9.4, 8.8, 8.5, 7.8, 7.5, 8.9, 8.0, 9.0],
+        'jerarquia_plantel_vis': [5.0, 6.2, 6.8, 5.5, 7.5, 8.2, 8.8, 6.0, 6.8, 7.9],
+        'titulos_mundiales_local':,
+        'titulos_mundiales_vis':,
+        
+        # Estado de Eliminación Actual (0: A salvo, 1: Riesgo crítico, 2: Eliminado)
+        'riesgo_eliminacion_local':,
+        'riesgo_eliminacion_vis':,
+        
+        # Datos Físicos (Alturas en cm y Velocidades Absolutas Promedio en km/h)
+        'altura_media_local': [179.5, 183.2, 180.1, 181.5, 185.0, 182.1, 177.8, 186.2, 181.2, 184.5],
+        'altura_media_vis': [176.2, 184.0, 176.5, 179.0, 177.8, 183.5, 181.5, 182.0, 176.5, 182.1],
+        'vel_absoluta_max_local': [35.2, 36.5, 34.9, 33.8, 33.2, 34.1, 34.5, 35.0, 33.9, 35.5], 
+        'vel_absoluta_max_vis': [31.5, 32.2, 33.0, 31.8, 34.5, 33.5, 33.8, 33.1, 33.0, 33.9],
+        
+        # Factores Culturales y Sede
+        'religion_dominante_local': ['Católica', 'Católica', 'Católica', 'Católica', 'Protestante', 'Islam', 'Sintoísmo', 'Católica', 'Católica', 'Protestante'],
+        'religion_dominante_vis': ['Islam', 'Protestante', 'Cristiana', 'Católica', 'Sintoísmo', 'Católica', 'Católica', 'Cristiana', 'Cristiana', 'Protestante'],
+        
+        # Variable Objetivo real: 1 = Gana Local, 0 = Empate, 2 = Gana Visitante
+        'resultado': [1, 1, 1, 1, 0, 2, 0, 1, 1, 1]
+    }
+    return pd.DataFrame(data)
 
-    # 2. Velocidad de la Selección
-    mod_atk_e1 *= (1 + (e1.get('velocidad_promedio', 70) / 1000))
-    mod_def_e2 *= (1 + (e2.get('velocidad_promedio', 70) / 1000))
+df = generar_dataset_ejemplo()
 
-    # 3. Altura física de los jugadores (Juego aéreo)
-    if e1.get('altura_jugadores_promer', 1.75) > e2.get('altura_jugadores_promer', 1.75):
-        mod_atk_e1 *= 1.05
-        mod_def_e2 *= 1.05
-    else:
-        mod_atk_e2 *= 1.05
-        mod_def_e1 *= 1.05
+# 2. INGENIERÍA DE CARACTERÍSTICAS (Métricas Cruzadas)
+df['dif_puntos_15'] = df['puntos_ultimos_15_local'] - df['puntos_ultimos_15_vis']
+df['dif_goles_favor'] = df['goles_favor_15_local'] - df['goles_favor_15_vis']
+df['dif_goles_contra'] = df['goles_contra_15_local'] - df['goles_contra_15_vis']
+df['dif_jerarquia'] = df['jerarquia_plantel_local'] - df['jerarquia_plantel_vis']
+df['dif_altura'] = df['altura_media_local'] - df['altura_media_vis']
+df['dif_velocidad_final'] = df['vel_absoluta_max_local'] - df['vel_absoluta_max_vis']
 
-    # 4. Jugadores Lesionados
-    mod_atk_e1 *= (1 - (e1.get('lesionados_clave_ataque', 0) * 0.1))
-    mod_def_e1 *= (1 - (e1.get('lesionados_clave_defensa', 0) * 0.1))
-    mod_atk_e2 *= (1 - (e2.get('lesionados_clave_ataque', 0) * 0.1))
-    mod_def_e2 *= (1 - (e2.get('lesionados_clave_defensa', 0) * 0.1))
+# Codificación de variables de texto (Ciudad, Religiones)
+le_ciudad = LabelEncoder()
+le_rel_loc = LabelEncoder()
+le_rel_vis = LabelEncoder()
 
-    # 5. Trayectoria vs Renovación
-    if e1.get('porcentaje_jugadores_trayectoria', 0.5) > e2.get('porcentaje_jugadores_trayectoria', 0.5):
-        mod_atk_e1 *= 1.05
-    else:
-        mod_atk_e2 *= 1.05
+df['ciudad_encoded'] = le_ciudad.fit_transform(df['ciudad_sede'])
+df['rel_local_encoded'] = le_rel_loc.fit_transform(df['religion_dominante_local'])
+df['rel_vis_encoded'] = le_rel_vis.fit_transform(df['religion_dominante_vis'])
 
-    return mod_atk_e1, mod_def_e1, mod_atk_e2, mod_def_e2
-
-# --- 4. MOTOR DE PREDICCIÓN ---
-def predecir_partido(nombre_e1, nombre_e2, ctx_e1, ctx_e2, condiciones):
-    gf_e1, gc_e1 = BD_MUNDIAL.get(nombre_e1, (12, 12))
-    gf_e2, gc_e2 = BD_MUNDIAL.get(nombre_e2, (12, 12))
-    
-    e1 = {'nombre': nombre_e1, 'gf_ultimos_10': gf_e1, 'gc_ultimos_10': gc_e1, **ctx_e1}
-    e2 = {'nombre': nombre_e2, 'gf_ultimos_10': gf_e2, 'gc_ultimos_10': gc_e2, **ctx_e2}
-
-    prom_f_e1, prom_c_e1 = e1['gf_ultimos_10'] / 10, e1['gc_ultimos_10'] / 10
-    prom_f_e2, prom_c_e2 = e2['gf_ultimos_10'] / 10, e2['gc_ultimos_10'] / 10
-
-    m_atk_e1, m_def_e1, m_atk_e2, m_def_e2 = evaluar_contexto(e1, e2, condiciones)
-
-    lambda_e1 = prom_f_e1 * m_atk_e1 * prom_c_e2 * m_def_e2
-    lambda_e2 = prom_f_e2 * m_atk_e2 * prom_c_e1 * m_def_e1
-
-    prob_e1, prob_empate, prob_e2 = 0.0, 0.0, 0.0
-
-    for g_e1 in range(7):
-        for g_e2 in range(7):
-            p_g_e1 = calcular_poisson(lambda_e1, g_e1)
-            p_g_e2 = calcular_poisson(lambda_e2, g_e2)
-            p_resultado = p_g_e1 * p_g_e2
-
-            if g_e1 > g_e2: prob_e1 += p_resultado
-            elif g_e1 == g_e2: prob_empate += p_resultado
-            else: prob_e2 += p_resultado
-
-    total = prob_e1 + prob_empate + prob_e2
-    if total > 0:
-        prob_e1 /= total; prob_empate /= total; prob_e2 /= total
-
-    return prob_e1 * 100, prob_empate * 100, prob_e2 * 100
-
-# --- 5. CONFIGURACIÓN COMPLETA DE LA JORNADA DE HOY ---
-# Parejas reales del 25 de junio + variables contextuales específicas
-jornada_hoy = [
-    ("Curacao", "Ivory Coast", 
-     {"velocidad_promedio": 75, "altura_jugadores_promer": 1.78, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.40}, 
-     {"velocidad_promedio": 82, "altura_jugadores_promer": 1.83, "lesionados_clave_ataque": 1, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.60}),
-    
-    ("Ecuador", "Germany", 
-     {"velocidad_promedio": 84, "altura_jugadores_promer": 1.79, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 1, "porcentaje_jugadores_trayectoria": 0.35}, 
-     {"velocidad_promedio": 80, "altura_jugadores_promer": 1.85, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.70}),
-    
-    ("Tunisia", "Netherlands", 
-     {"velocidad_promedio": 72, "altura_jugadores_promer": 1.81, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.50}, 
-     {"velocidad_promedio": 85, "altura_jugadores_promer": 1.84, "lesionados_clave_ataque": 2, "lesionados_clave_defensa": 1, "porcentaje_jugadores_trayectoria": 0.65}),
-    
-    ("Japan", "Sweden", 
-     {"velocidad_promedio": 89, "altura_jugadores_promer": 1.74, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.45}, 
-     {"velocidad_promedio": 76, "altura_jugadores_promer": 1.87, "lesionados_clave_ataque": 1, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.55}),
-    
-    ("Turkiye", "USA", 
-     {"velocidad_promedio": 79, "altura_jugadores_promer": 1.82, "lesionados_clave_ataque": 1, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.40}, 
-     {"velocidad_promedio": 86, "altura_jugadores_promer": 1.78, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.30}),
-    
-    ("Paraguay", "Australia", 
-     {"velocidad_promedio": 74, "altura_jugadores_promer": 1.80, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 0, "porcentaje_jugadores_trayectoria": 0.60}, 
-     {"velocidad_promedio": 78, "altura_jugadores_promer": 1.82, "lesionados_clave_ataque": 0, "lesionados_clave_defensa": 1, "porcentaje_jugadores_trayectoria": 0.50})
+# Selección de características para el modelo
+features = [
+    'dif_puntos_15', 'dif_goles_favor', 'dif_goles_contra', 'dif_jerarquia', 
+    'dif_altura', 'dif_velocidad_final', 'riesgo_eliminacion_local', 'riesgo_eliminacion_vis',
+    'ciudad_encoded', 'rel_local_encoded', 'rel_vis_encoded', 'titulos_mundiales_local', 'titulos_mundiales_vis'
 ]
 
-# --- EJECUCIÓN ---
-print("🔮 --- PREDICCIONES MUNDIALISTAS AUTOMÁTICAS: SISTEMA MUR ---")
-for local, visitante, ctx_l, ctx_v in jornada_hoy:
-    l, e, v = predecir_partido(local, visitante, ctx_l, ctx_v, {'altura_ciudad': 0})
-    print(f"⚽ {local} vs {visitante} -> Local: {l:.2f}% | Empate: {e:.2f}% | Visitante: {v:.2f}%")
+X = df[features]
+y = df['resultado']
 
-# =====================================================================
-# 🚀 EXTENSIÓN SISTEMA MUR PRO: MODIFICADORES AGRESIVOS Y ESTADÍSTICAS FINAS
-# =====================================================================
+# 3. ENTRENAMIENTO DEL MODELO INTELIGENTE
+X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.2, random_state=42)
 
-def evaluar_contexto_pro(e1, e2, condiciones):
-    # Multiplicadores base hiperinflados para forzar tendencias > 70%
-    mod_atk_e1, mod_def_e1, mod_atk_e2, mod_def_e2 = 1.0, 1.0, 1.0, 1.0
+model = lgb.LGBMClassifier(objective='multiclass', num_class=3, random_state=42, verbose=-1)
+model.fit(X_train, y_train)
 
-    # 1. Filtro de Creencias Religiosas / Misticismo Cultural (Afecta moral y fe en la épica)
-    if e1.get('creencia_religiosa_fuerte'): mod_atk_e1 *= 1.30  # +30% empuje ofensivo
-    if e2.get('creencia_religiosa_fuerte'): mod_atk_e2 *= 1.30
+print("¡Modelo entrenado y listo con todas las variables cargadas!")
 
-    # 2. Efecto de Optimismo / Eliminación (Urgencia vs Desmotivación total)
-    if e1.get('ya_eliminado'): m_atk_e1, m_def_e1 = mod_atk_e1 * 0.40, mod_def_e1 * 0.40  # Se cae el equipo
-    if e2.get('ya_eliminado'): m_atk_e2, m_def_e2 = mod_atk_e2 * 0.40, mod_def_e2 * 0.40
-    if e1.get('urgencia_clasificar') and not e1.get('ya_eliminado'): mod_atk_e1 *= 1.45  # Ultra ofensivo
-    if e2.get('urgencia_clasificar') and not e2.get('ya_eliminado'): mod_atk_e2 *= 1.45
-
-    # 3. Desgaste por Cansancio (Minutos acumulados en las piernas)
-    mod_def_e1 *= (1 - (e1.get('minutos_acumulados_promedio', 180) / 2000))
-    mod_def_e2 *= (1 - (e2.get('minutos_acumulados_promedio', 180) / 2000))
-
-    # 4. Disciplina Extrema (Efecto acumulativo de Tarjetas Amarillas)
-    mod_def_e1 *= (1 - (e1.get('tarjetas_amarillas_torneo', 0) * 0.08))
-    mod_def_e2 *= (1 - (e2.get('tarjetas_amarillas_torneo', 0) * 0.08))
-
-    return mod_atk_e1, mod_def_e1, mod_atk_e2, mod_def_e2
-
-# ... [Funciones de predicción y ejemplos de jornada avanzados] ...
-
-
-
-
-# =====================================================================
-# 🚀 EXTENSIÓN SISTEMA MUR PRO: INTENSIDAD EXTREMA Y MARCADORES EN VIVO
-# =====================================================================
-
-def evaluar_contexto_avanzado(e1, e2):
-    # Multiplicadores drásticos para forzar probabilidades > 70%
-    mA1, mD1, mA2, mD2 = 1.0, 1.0, 1.0, 1.0
-
-    # 1. Creencias Religiosas y Misticismo Cultural (+35% de convicción)
-    if e1.get('fe_misticismo'): mA1 *= 1.35
-    if e2.get('fe_misticismo'): mA2 *= 1.35
-
-    # 2. Efecto de Optimismo / Eliminación Total
-    if e1.get('ya_eliminado'): mA1 *= 0.30; mD1 *= 0.50
-    if e2.get('ya_eliminado'): mA2 *= 0.30; mD2 *= 0.50
-    if e1.get('urgencia_clasificar') and not e1.get('ya_eliminado'): mA1 *= 1.50
-    if e2.get('urgencia_clasificar') and not e2.get('ya_eliminado'): mA2 *= 1.50
-
-    # 3. Desgaste por Cansancio Extremo (Minutos en fase de grupos)
-    mA1 *= (1 - (e1.get('minutos_jugados', 180) * 0.001))
-    mD1 *= (1 - (e1.get('minutos_jugados', 180) * 0.0015))
-    mA2 *= (1 - (e2.get('minutos_jugados', 180) * 0.001))
-    mD2 *= (1 - (e2.get('minutos_jugados', 180) * 0.0015))
-
-    # 4. Disciplina: Acumulación de Tarjetas Amarillas
-    mD1 *= (1 - (e1.get('amarillas', 0) * 0.07))
-    mD2 *= (1 - (e2.get('amarillas', 0) * 0.07))
-
-    return mA1, mD1, mA2, mD2
-
-def calcular_marcador_exacto(l1, l2):
-    # Traduce los índices lambda corregidos a goles enteros usando redondeo normal
-    goles_l = round(l1)
-    goles_v = round(l2)
-    return goles_l, goles_v
-
-
-def procesar_jornada_pro(partidos):
-    print("\n🔮 --- SIMULACIÓN AVANZADA SISTEMA MUR PRO (MUNDIAL 2026) ---")
-    for local, visitante, ctx_l, ctx_v in partidos:
-        # Extraer estadísticas base de tu BD_MUNDIAL original
-        gf_l, gc_l = BD_MUNDIAL.get(local, (12, 12))
-        gf_v, gc_v = BD_MUNDIAL.get(visitante, (12, 12))
-        
-        # Calcular lambdas base según tu lógica original
-        l_base_l = (gf_l / 10) * (gc_v / 10)
-        l_base_v = (gf_v / 10) * (gc_l / 10)
-        
-        # Modificadores Pro extremos
-        mA1, mD1, mA2, mD2 = evaluar_contexto_avanzado(ctx_l, ctx_v)
-        lambda_final_l = l_base_l * mA1 * mD2
-        lambda_final_v = l_base_v * mA2 * mD1
-        
-        # Re-calcular la matriz de Poisson de tu código para las probabilidades
-        p_l, p_e, p_v = 0.0, 0.0, 0.0
-        for g_l in range(7):
-            for g_v in range(7):
-                p_g_l = calcular_poisson(lambda_final_l, g_l)
-                p_g_v = calcular_poisson(lambda_final_v, g_v)
-                res = p_g_l * p_g_v
-                if g_l > g_v: p_l += res
-                elif g_l == g_v: p_e += res
-                else: p_v += res
-        
-        tot = p_l + p_e + p_v
-        if tot > 0: p_l /= tot; p_e /= tot; p_v /= tot
-        
-        # Obtener los goles finales calculados en números
-        g_l, g_v = calcular_marcador_exacto(lambda_final_l, lambda_final_v)
-        
-        print(f"⚽ {local} vs {visitante}")
-        print(f"   📊 Probabilidades -> Local: {p_l*100:.2f}% | Empate: {p_e*100:.2f}% | Visitante: {p_v*100:.2f}%")
-        print(f"   🏆 Marcador numérico calculado: {local} {g_l} - {g_v} {visitante}\n")
-
-# --- NUEVA LISTA DE PARTIDOS CON TU CONTEXTO SOLICITADO ---
-jornada_pro_hoy = [
-    ("Ecuador", "Germany", 
-     {"fe_misticismo": True, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 180, "amarillas": 4},
-     {"fe_misticismo": False, "ya_eliminado": False, "urgencia_clasificar": False, "minutos_jugados": 120, "amarillas": 1}),
-     
-    ("Paraguay", "Australia", 
-     {"fe_misticismo": True, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 185, "amarillas": 5},
-     {"fe_misticismo": False, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 170, "amarillas": 2}),
-     
-    ("Turkiye", "USA", 
-     {"fe_misticismo": False, "ya_eliminado": True, "urgencia_clasificar": False, "minutos_jugados": 190, "amarillas": 6},
-     {"fe_misticismo": True, "ya_eliminado": False, "urgencia_clasificar": True, "minutos_jugados": 110, "amarillas": 0})
-]
-
-# Ejecutar el nuevo motor Pro
-procesar_jornada_pro(jornada_pro_hoy)
-
-import random
-
-def simular_partido_en_vivo(local, visitante, lambda_l, lambda_v):
-    print(f"🏁 ¡Arranca el partido en vivo: {local} vs {visitante}!")
-    goles_l, goles_v = 0, 0
+# 4. FUNCIÓN PARA EVALUAR CUALQUIER PARTIDO NUEVO
+def predecir_partido_sistemamuriosmatias(datos_partido):
+    df_partido = pd.DataFrame([datos_partido])
     
-    # Simulación minuto a minuto (simplificada a 9 bloques de 10 minutos)
-    for bloque in range(1, 10):
-        minuto = bloque * 10
-        # Probabilidad de gol en este bloque (Poisson fraccionado)
-        if random.random() < (lambda_l / 9):
-            goles_l += 1
-            print(f"⚽ ¡GOOOL de {local}! Minuto {minuto}. Marcador: {local} {goles_l} - {goles_v} {visitante}")
-        if random.random() < (lambda_v / 9):
-            goles_v += 1
-            print(f"⚽ ¡GOOOL de {visitante}! Minuto {minuto}. Marcador: {local} {goles_l} - {goles_v} {visitante}")
-            
-        # EVENTO EXCLUSIVO: Alerta de cansancio crítico en vivo
-        if bloque == 7: # Minuto 70
-            print(f"⏳ Minuto 70: El cansancio acumulado empieza a pasar factura en las defensas...")
-            lambda_l *= 1.2  # El partido se rompe y se vuelve más caótico (más goles)
-            lambda_v *= 1.2
+    # Calcular diferenciales del nuevo cruce
+    df_partido['dif_puntos_15'] = df_partido['puntos_ultimos_15_local'] - df_partido['puntos_ultimos_15_vis']
+    df_partido['dif_goles_favor'] = df_partido['goles_favor_15_local'] - df_partido['goles_favor_15_vis']
+    df_partido['dif_goles_contra'] = df_partido['goles_contra_15_local'] - df_partido['goles_contra_15_vis']
+    df_partido['dif_jerarquia'] = df_partido['jerarquia_plantel_local'] - df_partido['jerarquia_plantel_vis']
+    df_partido['dif_altura'] = df_partido['altura_media_local'] - df_partido['altura_media_vis']
+    df_partido['dif_velocidad_final'] = df_partido['vel_absoluta_max_local'] - df_partido['vel_absoluta_max_vis']
+    
+    # Mapeo de texto a números de forma segura
+    df_partido['ciudad_encoded'] = le_ciudad.transform([datos_partido['ciudad_sede']])[0]
+    df_partido['rel_local_encoded'] = le_rel_loc.transform([datos_partido['religion_dominante_local']])[0]
+    df_partido['rel_vis_encoded'] = le_rel_vis.transform([datos_partido['religion_dominante_vis']])[0]
+    
+    # Extraer probabilidades
+    X_pred = df_partido[features]
+    probabilidades = model.predict_proba(X_pred)[0]
+    
+    # Mostrar resultados en pantalla
+    print("\n" + "="*50)
+    print(f"ANÁLISIS DE PARTIDO: {datos_partido['local']} vs {datos_partido['visitante']}")
+    print(f"Sede: {datos_partido['ciudad_sede']} | Choque Cultural: {datos_partido['religion_dominante_local']} vs {datos_partido['religion_dominante_vis']}")
+    print("-" * 50)
+    print(f"Probabilidad Victoria {datos_partido['local']}: {probabilidades[1]*100:.2f}%")
+    print(f"Probabilidad de Empate: {probabilidades[0]*100:.2f}%")
+    print(f"Probabilidad Victoria {datos_partido['visitante']}: {probabilidades[2]*100:.2f}%")
+    print("="*50)
 
-    print(f"🏁 Fin del partido. Resultado definitivo: {local} {goles_l} - {goles_v} {visitante}\n")
-
-
-import math
-
-# --- 1. BASE DE DATOS MUNDIALISTA ---
-BD_MUNDIAL_ES = {
-    "México": (1.6, 1.2), "Sudáfrica": (1.1, 1.3), "Brasil": (2.1, 0.9), "Alemania": (2.0, 1.0),
-    "Costa de Marfil": (1.4, 1.1), "Ecuador": (1.3, 1.2), "Paraguay": (1.3, 1.2), "Australia": (1.3, 1.2)
+# ============================================================================
+# 5. SIMULADOR EN VIVO (Puedes modificar los números de aquí abajo)
+# ============================================================================
+partido_a_testear = {
+    'local': 'Argentina', 
+    'visitante': 'Arabia Saudita', 
+    'ciudad_sede': 'Dallas',
+    'puntos_ultimos_15_local': 38, 
+    'puntos_ultimos_15_vis': 18,
+    'goles_favor_15_local': 35, 
+    'goles_contra_15_local': 8,
+    'goles_favor_15_vis': 12, 
+    'goles_contra_15_vis': 25,
+    'jerarquia_plantel_local': 9.5, 
+    'jerarquia_plantel_vis': 5.0,
+    'titulos_mundiales_local': 3, 
+    'titulos_mundiales_vis': 0,
+    'riesgo_eliminacion_local': 0,  # 0 = Estable
+    'riesgo_eliminacion_vis': 1,    # 1 = Cerca de quedar eliminado
+    'altura_media_local': 179.5, 
+    'altura_media_vis': 176.2,
+    'vel_absoluta_max_local': 35.2, # Velocidad punta promedio
+    'vel_absoluta_max_vis': 31.5,
+    'religion_dominante_local': 'Católica', 
+    'religion_dominante_vis': 'Islam'
 }
 
-# --- 2. NUEVA LÓGICA DE EQUILIBRIO ---
-def evaluar_contexto_equilibrado(e1, e2):
-    mA1, mD1, mA2, mD2 = 1.0, 1.0, 1.0, 1.0
-    # Filtro 1: Calidad de Plantel y Recambios
-    recambio_e1 = e1.get('calidad_recambios', 5)
-    bajas_e1 = e1.get('lesionados', 0)
-    mA1 *= (1 - max(0, (bajas_e1 * 0.08) - (recambio_e1 * 0.01)))
-    # Filtro 2: Idiosincrasia y Resiliencia
-    if e1.get('idiosincrasia_resiliente', False): mD1 *= 1.05
-    # Filtro 3: Mitigador de Fatiga
-    mA1 *= (1 - (e1.get('minutos_jugados', 180) * 0.0003))
-    return mA1, mD1, mA2, mD2
-
-# --- 3. MOTOR DE PROCESAMIENTO ---
-def procesar_jornada_equilibrada(partidos):
-    print("🔮 --- PREDICCIONES EQUILIBRADAS ---")
-    for local, visitante, ctx_l, ctx_v in partidos:
-        prom_f_l, prom_c_l = BD_MUNDIAL_ES.get(local, (1.2, 1.2))
-        prom_f_v, prom_c_v = BD_MUNDIAL_ES.get(visitante, (1.2, 1.2))
-        mA1, mD1, mA2, mD2 = evaluar_contexto_equilibrado(ctx_l, ctx_v)
-        lambda_l = prom_f_l * mA1 * prom_c_v * mD2
-        lambda_v = prom_f_v * mA2 * prom_c_l * mD1
-        print(f"⚽ {local} vs {visitante} -> Marcador sugerido: {math.floor(lambda_l)} - {math.floor(lambda_v)}")
-
-# --- 4. CONFIGURACIÓN ---
-jornada_hoy = [
-    ("Ecuador", "Alemania", 
-     {"calidad_recambios": 6, "lesionados": 1, "idiosincrasia_resiliente": True, "minutos_jugados": 180}, 
-     {"calidad_recambios": 9, "lesionados": 0, "idiosincrasia_resiliente": True, "minutos_jugados": 180})
-]
-procesar_jornada_equilibrada(jornada_hoy)
-
-
-
-
-# =====================================================================
-# 🚀 EXTENSIÓN SISTEMA MUR V2: JERARQUÍA, HISTORIA Y RENDIMIENTO RECIENTE
-# =====================================================================
-
-# Puntuaciones estimadas de 1 a 100 basadas en historia desde su fundación, 
-# peso de escudo, jerarquía de plantel y últimos 15 partidos internacionales.
-METRICAS_JERARQUIA = {
-    "Germany": {"jerarquia": 95, "historia": 98, "rendimiento_15": 82},
-    "Ecuador": {"jerarquia": 72, "historia": 65, "rendimiento_15": 78},
-    "Curacao": {"jerarquia": 35, "historia": 20, "rendimiento_15": 45},
-    "Ivory Coast": {"jerarquia": 78, "historia": 72, "rendimiento_15": 74},
-    "Tunisia": {"jerarquia": 65, "historia": 58, "rendimiento_15": 60},
-    "Netherlands": {"jerarquia": 90, "historia": 92, "rendimiento_15": 85},
-    "Japan": {"jerarquia": 82, "historia": 68, "rendimiento_15": 88},
-    "Sweden": {"jerarquia": 76, "historia": 75, "rendimiento_15": 62},
-    "Turkiye": {"jerarquia": 74, "historia": 70, "rendimiento_15": 68},
-    "USA": {"jerarquia": 77, "historia": 62, "rendimiento_15": 80},
-    "Paraguay": {"jerarquia": 73, "historia": 76, "rendimiento_15": 55},
-    "Australia": {"jerarquia": 70, "historia": 64, "rendimiento_15": 72}
-}
-
-def evaluar_contexto_jerarquico_v2(e1, e2, ctx_e1, ctx_e2):
-    # Modificadores base
-    mA1, mD1, mA2, mD2 = 1.0, 1.0, 1.0, 1.0
-    
-    n1, n2 = e1['nombre'], e2['nombre']
-    m1 = METRICAS_JERARQUIA.get(n1, {"jerarquia": 50, "historia": 50, "rendimiento_15": 50})
-    m2 = METRICAS_JERARQUIA.get(n2, {"jerarquia": 50, "historia": 50, "rendimiento_15": 50})
-    
-    # 1. Peso de la Historia y Jerarquía (Hasta un 25% de impacto en ataque/defensa)
-    diff_jerarquia = (m1["jerarquia"] - m2["jerarquia"]) / 100
-    diff_historia = (m1["historia"] - m2["historia"]) / 100
-    
-    if diff_jerarquia > 0:
-        mA1 *= (1 + diff_jerarquia * 0.20)
-        mD2 *= (1 - diff_jerarquia * 0.10)
-    else:
-        mA2 *= (1 + abs(diff_jerarquia) * 0.20)
-        mD1 *= (1 - abs(diff_jerarquia) * 0.10)
-        
-    if diff_historia > 0:
-        mA1 *= (1 + diff_historia * 0.15)
-    else:
-        mA2 *= (1 + abs(diff_historia) * 0.15)
-
-    # 2. Rendimiento Reciente (Últimos 15 partidos)
-    diff_forma = (m1["rendimiento_15"] - m2["rendimiento_15"]) / 100
-    if diff_forma > 0:
-        mA1 *= (1 + diff_forma * 0.15)
-    else:
-        mA2 *= (1 + abs(diff_forma) * 0.15)
-
-    # 3. Factor de Rapidez integrado (Usa la velocidad de tus variables contextuales)
-    vel_e1 = ctx_e1.get('velocidad_promedio', 70)
-    vel_e2 = ctx_e2.get('velocidad_promedio', 70)
-    diff_velocidad = (vel_e1 - vel_e2) / 100
-    mA1 *= (1 + (diff_velocidad * 0.10))
-    mA2 *= (1 - (diff_velocidad * 0.10))
-    
-    return mA1, mD1, mA2, mD2
-
-def procesar_jornada_jerarquica_v2(partidos):
-    print("\n👑 --- PREDICCIONES EQUILIBRADAS V2: JERARQUÍA E HISTORIA ---")
-    for local, visitante, ctx_l, ctx_v in partidos:
-        gf_l, gc_l = BD_MUNDIAL.get(local, (12, 12))
-        gf_v, gc_v = BD_MUNDIAL.get(visitante, (12, 12))
-        
-        e1 = {'nombre': local}
-        e2 = {'nombre': visitante}
-        
-        mA1, mD1, mA2, mD2 = evaluar_contexto_jerarquico_v2(e1, e2, ctx_l, ctx_v)
-        
-        # Simulación de goles esperados balanceados
-        lambda_final_l = (gf_l / 10) * mA1 * (gc_v / 10) * mD2
-        lambda_final_v = (gf_v / 10) * mA2 * (gc_l / 10) * mD1
-        
-        # Remueve el achatamiento del redondeo plano usando la expectativa matemática real
-        goles_l = math.floor(lambda_final_l) if lambda_final_l < 1.0 else round(lambda_final_l)
-        goles_v = math.floor(lambda_final_v) if lambda_final_v < 1.0 else round(lambda_final_v)
-        
-        # Si da empate 0-0 pero la jerarquía es muy dispar, se ajusta al peso histórico
-        if goles_l == goles_v and abs(METRICAS_JERARQUIA.get(local, {"jerarquia":50})["jerarquia"] - METRICAS_JERARQUIA.get(visitante, {"jerarquia":50})["jerarquia"]) > 15:
-            if METRICAS_JERARQUIA.get(local)["jerarquia"] > METRICAS_JERARQUIA.get(visitante)["jerarquia"]:
-                goles_l += 1
-            else:
-                goles_v += 1
-
-        print(f"⚽ {local} vs {visitante}")
-        print(f" 🏆 Marcador Jerárquico Calculado: {local} {goles_l} - {goles_v} {visitante}\n")
-
-# Ejecutar el nuevo motor analítico al final del archivo
-procesar_jornada_jerarquica_v2(jornada_hoy)
+# Ejecutar el sistema predictivo
+predecir_partido_sistemamuriosmatias(partido_a_testear)
 
 

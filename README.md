@@ -330,3 +330,98 @@ procesar_jornada_equilibrada(jornada_hoy)
 
 
 
+
+# =====================================================================
+# 🚀 EXTENSIÓN SISTEMA MUR V2: JERARQUÍA, HISTORIA Y RENDIMIENTO RECIENTE
+# =====================================================================
+
+# Puntuaciones estimadas de 1 a 100 basadas en historia desde su fundación, 
+# peso de escudo, jerarquía de plantel y últimos 15 partidos internacionales.
+METRICAS_JERARQUIA = {
+    "Germany": {"jerarquia": 95, "historia": 98, "rendimiento_15": 82},
+    "Ecuador": {"jerarquia": 72, "historia": 65, "rendimiento_15": 78},
+    "Curacao": {"jerarquia": 35, "historia": 20, "rendimiento_15": 45},
+    "Ivory Coast": {"jerarquia": 78, "historia": 72, "rendimiento_15": 74},
+    "Tunisia": {"jerarquia": 65, "historia": 58, "rendimiento_15": 60},
+    "Netherlands": {"jerarquia": 90, "historia": 92, "rendimiento_15": 85},
+    "Japan": {"jerarquia": 82, "historia": 68, "rendimiento_15": 88},
+    "Sweden": {"jerarquia": 76, "historia": 75, "rendimiento_15": 62},
+    "Turkiye": {"jerarquia": 74, "historia": 70, "rendimiento_15": 68},
+    "USA": {"jerarquia": 77, "historia": 62, "rendimiento_15": 80},
+    "Paraguay": {"jerarquia": 73, "historia": 76, "rendimiento_15": 55},
+    "Australia": {"jerarquia": 70, "historia": 64, "rendimiento_15": 72}
+}
+
+def evaluar_contexto_jerarquico_v2(e1, e2, ctx_e1, ctx_e2):
+    # Modificadores base
+    mA1, mD1, mA2, mD2 = 1.0, 1.0, 1.0, 1.0
+    
+    n1, n2 = e1['nombre'], e2['nombre']
+    m1 = METRICAS_JERARQUIA.get(n1, {"jerarquia": 50, "historia": 50, "rendimiento_15": 50})
+    m2 = METRICAS_JERARQUIA.get(n2, {"jerarquia": 50, "historia": 50, "rendimiento_15": 50})
+    
+    # 1. Peso de la Historia y Jerarquía (Hasta un 25% de impacto en ataque/defensa)
+    diff_jerarquia = (m1["jerarquia"] - m2["jerarquia"]) / 100
+    diff_historia = (m1["historia"] - m2["historia"]) / 100
+    
+    if diff_jerarquia > 0:
+        mA1 *= (1 + diff_jerarquia * 0.20)
+        mD2 *= (1 - diff_jerarquia * 0.10)
+    else:
+        mA2 *= (1 + abs(diff_jerarquia) * 0.20)
+        mD1 *= (1 - abs(diff_jerarquia) * 0.10)
+        
+    if diff_historia > 0:
+        mA1 *= (1 + diff_historia * 0.15)
+    else:
+        mA2 *= (1 + abs(diff_historia) * 0.15)
+
+    # 2. Rendimiento Reciente (Últimos 15 partidos)
+    diff_forma = (m1["rendimiento_15"] - m2["rendimiento_15"]) / 100
+    if diff_forma > 0:
+        mA1 *= (1 + diff_forma * 0.15)
+    else:
+        mA2 *= (1 + abs(diff_forma) * 0.15)
+
+    # 3. Factor de Rapidez integrado (Usa la velocidad de tus variables contextuales)
+    vel_e1 = ctx_e1.get('velocidad_promedio', 70)
+    vel_e2 = ctx_e2.get('velocidad_promedio', 70)
+    diff_velocidad = (vel_e1 - vel_e2) / 100
+    mA1 *= (1 + (diff_velocidad * 0.10))
+    mA2 *= (1 - (diff_velocidad * 0.10))
+    
+    return mA1, mD1, mA2, mD2
+
+def procesar_jornada_jerarquica_v2(partidos):
+    print("\n👑 --- PREDICCIONES EQUILIBRADAS V2: JERARQUÍA E HISTORIA ---")
+    for local, visitante, ctx_l, ctx_v in partidos:
+        gf_l, gc_l = BD_MUNDIAL.get(local, (12, 12))
+        gf_v, gc_v = BD_MUNDIAL.get(visitante, (12, 12))
+        
+        e1 = {'nombre': local}
+        e2 = {'nombre': visitante}
+        
+        mA1, mD1, mA2, mD2 = evaluar_contexto_jerarquico_v2(e1, e2, ctx_l, ctx_v)
+        
+        # Simulación de goles esperados balanceados
+        lambda_final_l = (gf_l / 10) * mA1 * (gc_v / 10) * mD2
+        lambda_final_v = (gf_v / 10) * mA2 * (gc_l / 10) * mD1
+        
+        # Remueve el achatamiento del redondeo plano usando la expectativa matemática real
+        goles_l = math.floor(lambda_final_l) if lambda_final_l < 1.0 else round(lambda_final_l)
+        goles_v = math.floor(lambda_final_v) if lambda_final_v < 1.0 else round(lambda_final_v)
+        
+        # Si da empate 0-0 pero la jerarquía es muy dispar, se ajusta al peso histórico
+        if goles_l == goles_v and abs(METRICAS_JERARQUIA.get(local, {"jerarquia":50})["jerarquia"] - METRICAS_JERARQUIA.get(visitante, {"jerarquia":50})["jerarquia"]) > 15:
+            if METRICAS_JERARQUIA.get(local)["jerarquia"] > METRICAS_JERARQUIA.get(visitante)["jerarquia"]:
+                goles_l += 1
+            else:
+                goles_v += 1
+
+        print(f"⚽ {local} vs {visitante}")
+        print(f" 🏆 Marcador Jerárquico Calculado: {local} {goles_l} - {goles_v} {visitante}\n")
+
+# Ejecutar el nuevo motor analítico al final del archivo
+procesar_jornada_jerarquica_v2(jornada_hoy)
+
+

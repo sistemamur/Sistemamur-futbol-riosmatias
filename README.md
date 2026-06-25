@@ -1,5 +1,12 @@
 # Sistemamur-futbol-riosmatias
 Calculadora futbolistica
+# Sistemamur-futbol-riosmatias
+
+Calculadora futbolística para la predicción de partidos utilizando modelos estadísticos y variables contextuales.
+
+## 🐍 Código del Predictor
+
+```python
 import math
 
 # --- CALCULADORA FUTBOLÍSTICA ---
@@ -15,9 +22,8 @@ def evaluar_contexto(e1, e2, condiciones):
     mod_atk_e2 = 1.0
     mod_def_e2 = 1.0
 
-    # 1. Efecto Altura de la Ciudad (Ej: La Paz)
+    # 1. Efecto Altura de la Ciudad
     if condiciones.get('altura_ciudad', 0) >= 2500:
-        # El equipo local suele adaptarse mejor, el visitante sufre en defensa/físico
         mod_atk_e1 *= 1.15
         mod_atk_e2 *= 0.85
 
@@ -27,19 +33,19 @@ def evaluar_contexto(e1, e2, condiciones):
 
     # 3. Altura física de los jugadores
     if e1.get('altura_jugadores_promer', 1.75) > e2.get('altura_jugadores_promer', 1.75):
-        mod_atk_e1 *= 1.05  # Más peligro aéreo
-        mod_def_e2 *= 1.05  # Mayor dificultad defensiva
+        mod_atk_e1 *= 1.05
+        mod_def_e2 *= 1.05
     else:
         mod_atk_e2 *= 1.05
         mod_def_e1 *= 1.05
 
-    # 4. Jugadores Lesionados (Restan potencial)
+    # 4. Jugadores Lesionados
     mod_atk_e1 *= (1 - (e1.get('lesionados_clave_ataque', 0) * 0.1))
     mod_def_e1 *= (1 - (e1.get('lesionados_clave_defensa', 0) * 0.1))
     mod_atk_e2 *= (1 - (e2.get('lesionados_clave_ataque', 0) * 0.1))
     mod_def_e2 *= (1 - (e2.get('lesionados_clave_defensa', 0) * 0.1))
 
-    # 5. Trayectoria vs Renovación (Juventud vs Experiencia)
+    # 5. Trayectoria vs Renovación
     exp_e1 = e1.get('porcentaje_jugadores_trayectoria', 0.5)
     exp_e2 = e2.get('porcentaje_jugadores_trayectoria', 0.5)
 
@@ -52,16 +58,13 @@ def evaluar_contexto(e1, e2, condiciones):
 
 
 def predecir_partido_avanzado(e1, e2, condiciones):
-    # # Goles promedio en los últimos 10 partidos anteriores al encuentro
     prom_f_e1 = e1.get('gf_ultimos_10', 10) / 10
     prom_c_e1 = e1.get('gc_ultimos_10', 10) / 10
     prom_f_e2 = e2.get('gf_ultimos_10', 10) / 10
     prom_c_e2 = e2.get('gc_ultimos_10', 10) / 10
 
-    # Obtener los modificadores contextuales
     m_atk_e1, m_def_e1, m_atk_e2, m_def_e2 = evaluar_contexto(e1, e2, condiciones)
 
-    # Calcular la expectativa de goles (XG) final para el partido
     lambda_e1 = prom_f_e1 * m_atk_e1 * prom_c_e2 * m_def_e2
     lambda_e2 = prom_f_e2 * m_atk_e2 * prom_c_e1 * m_def_e1
 
@@ -69,7 +72,6 @@ def predecir_partido_avanzado(e1, e2, condiciones):
     prob_empate = 0.0
     prob_e2 = 0.0
 
-    # Simulación de matriz de goles (máximo 6 goles por equipo)
     for g_e1 in range(7):
         for g_e2 in range(7):
             p_g_e1 = calcular_poisson(lambda_e1, g_e1)
@@ -97,17 +99,16 @@ def predecir_partido_avanzado(e1, e2, condiciones):
 
 # --- CONFIGURACIÓN DE LOS DATOS DE ENTRADA ---
 
-# Datos previos al partido (Últimos 10 juegos)
 seleccion_1 = {
     'nombre': 'Bolivia',
     'gf_ultimos_10': 14,
     'gc_ultimos_10': 12,
-    'velocidad_promedio': 78,  # Escala 1-100 (tipo FIFA/EA Sports)
-    'altura_jugadores_promer': 1.76,  # En metros
+    'velocidad_promedio': 78,
+    'altura_jugadores_promer': 1.76,
     'lesionados_clave_ataque': 1,
     'lesionados_clave_defensa': 0,
-    'porcentaje_plantel_renovado': 0.40,  # 40% jóvenes nuevos
-    'porcentaje_jugadores_trayectoria': 0.20  # 20% veteranos
+    'porcentaje_plantel_renovado': 0.40,
+    'porcentaje_jugadores_trayectoria': 0.20
 }
 
 seleccion_2 = {
@@ -122,12 +123,13 @@ seleccion_2 = {
     'porcentaje_jugadores_trayectoria': 0.50
 }
 
-# Entorno geográfico del partido
 condiciones_encuentro = {
-    'altura_ciudad': 3600  # # La Paz (en metros)
+    'altura_ciudad': 3600
 }
 
 # --- EJECUTAR PREDICCIÓN ---
 predecir_partido_avanzado(seleccion_1, seleccion_2, condiciones_encuentro)
+```
+
 
 

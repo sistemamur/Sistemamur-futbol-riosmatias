@@ -158,3 +158,83 @@ partido_a_testear = {
 predecir_partido_sistemamuriosmatias(partido_a_testear)
 
 
+
+
+
+
+import random
+
+class SistemaMuriosMatias:
+    def __init__(self, equipo1, equipo2, sede):
+        self.eq1 = equipo1
+        self.eq2 = equipo2
+        self.sede = sede
+        
+    def simular_partido(self):
+        print(f"--- INICIANDO SISTEMAMURIOSMATIAS ---")
+        print(f"Encuentro: {self.eq1} vs {self.eq2} | Sede: {self.sede}\n")
+        
+        # 1. Variables Lógicas (Puntajes base simulados de 1 a 10)
+        # En un entorno real, estos datos se conectarían a una base de datos estadística.
+        rendimiento_eq1 = random.randint(5, 10) # Goles y últimos 15 partidos
+        rendimiento_eq2 = random.randint(5, 10)
+        
+        jerarquia_eq1 = random.randint(5, 10)   # Títulos y peso del plantel
+        jerarquia_eq2 = random.randint(5, 10)
+        
+        fisico_eq1 = random.randint(5, 10)      # Altura y velocidad física
+        fisico_eq2 = random.randint(5, 10)
+        
+        # 2. Variables de Presión y Sede
+        presion = random.choice(["Alta", "Media", "Baja"])
+        
+        # 3. MÓDULO MÍSTICO Y RADIESTESIA (Consenso Esotérico)
+        tarot_eq1 = random.randint(1, 10)       # Lectura de cartas y videntes
+        tarot_eq2 = random.randint(1, 10)
+        
+        varillas_eq1 = random.randint(1, 10)    # Radiestesia y energía del estadio
+        varillas_eq2 = random.randint(1, 10)
+        
+        # Cálculos de Potenciales Totales
+        potencial_logico_eq1 = (rendimiento_eq1 + jerarquia_eq1 + fisico_eq1) / 3
+        potencial_logico_eq2 = (rendimiento_eq2 + jerarquia_eq2 + fisico_eq2) / 3
+        
+        potencial_mistico_eq1 = (tarot_eq1 + varillas_eq1) / 2
+        potencial_mistico_eq2 = (tarot_eq2 + varillas_eq2) / 2
+        
+        # Ponderación Final: 70% Lógica y Estadística | 30% Misticismo y Energía
+        score_final_eq1 = (potencial_logico_eq1 * 0.7) + (potencial_mistico_eq1 * 0.3)
+        score_final_eq2 = (potencial_logico_eq2 * 0.7) + (potencial_mistico_eq2 * 0.3)
+        
+        # Conversión a porcentajes de probabilidad de victoria
+        total_score = score_final_eq1 + score_final_eq2
+        prob_eq1 = int((score_final_eq1 / total_score) * 85) # Margen reservado para empate
+        prob_eq2 = int((score_final_eq2 / total_score) * 85)
+        prob_empate = 100 - prob_eq1 - prob_eq2
+        
+        # Despliegue de Resultados en Pantalla
+        print("=== INFORME DE VARIABLES LÓGICAS ===")
+        print(f"[{self.eq1}] Rendimiento: {rendimiento_eq1}/10 | Jerarquía: {jerarquia_eq1}/10 | Físico: {fisico_eq1}/10")
+        print(f"[{self.eq2}] Rendimiento: {rendimiento_eq2}/10 | Jerarquía: {jerarquia_eq2}/10 | Físico: {fisico_eq2}/10")
+        print(f"Factor Presión del Partido: {presion}\n")
+        
+        print("=== INFORME MÍSTICO Y RADIESTESIA ===")
+        print(f"[{self.eq1}] Consenso Tarot: {tarot_eq1}/10 | Energía Varillas: {varillas_eq1}/10")
+        print(f"[{self.eq2}] Consenso Tarot: {tarot_eq2}/10 | Energía Varillas: {varillas_eq2}/10\n")
+        
+        print("=== PREDICCIÓN FINAL DEL SISTEMA ===")
+        print(f"Probabilidad de Victoria [{self.eq1}]: {prob_eq1}%")
+        print(f"Probabilidad de Victoria [{self.eq2}]: {prob_eq2}%")
+        print(f"Probabilidad de Empate: {prob_empate}%\n")
+        
+        # Simulación de marcador más probable basado en el score
+        goles_eq1 = int(score_final_eq1 // 2.5)
+        goles_eq2 = int(score_final_eq2 // 2.5)
+        print(f"Marcador estimado más probable: {self.eq1} {goles_eq1} - {goles_eq2} {self.eq2}")
+        print("-------------------------------------")
+
+# --- EJEMPLO DE USO ---
+# Reemplaza los nombres de los equipos para probar el sistema
+simulador = SistemaMuriosMatias(equipo1="Boca Juniors", equipo2="River Plate", sede="Estadio Monumental")
+simulador.simular_partido()
+

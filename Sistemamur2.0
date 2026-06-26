@@ -1,0 +1,69 @@
+simulador_mistico
+import math
+
+# 1. BASE DE DATOS MÍSTICA (Predicciones estimadas de los tarotistas/péndulos)
+# Cargado exactamente con el historial simulado para la jornada de ayer
+PREDICCIONES_MUNDIAL = {
+    "TUR_vs_USA": {
+        "tarotistas": [{"nombre": "Brujo Astral", "goles_e1": 1, "goles_e2": 3, "fuerza_astral": 85}],
+        "radiestesia": [{"nombre": "Maestro Péndulo", "goles_e1": 1, "goles_e2": 3, "oscilacion_e1": 80, "oscilacion_e2": 35}]
+    },
+    "ECU_vs_GER": {
+        "tarotistas": [{"nombre": "Brujo Astral", "goles_e1": 1, "goles_e2": 2, "fuerza_astral": 70}],
+        "radiestesia": [{"nombre": "Maestro Péndulo", "goles_e1": 1, "goles_e2": 2, "oscilacion_e1": 75, "oscilacion_e2": 40}]
+    },
+    "TUN_vs_NED": {
+        "tarotistas": [{"nombre": "Brujo Astral", "goles_e1": 0, "goles_e2": 2, "fuerza_astral": 80}],
+        "radiestesia": [{"nombre": "Maestro Péndulo", "goles_e1": 0, "goles_e2": 2, "oscilacion_e1": 82, "oscilacion_e2": 30}]
+    },
+    "JPN_vs_SWE": {
+        "tarotistas": [{"nombre": "Brujo Astral", "goles_e1": 1, "goles_e2": 1, "fuerza_astral": 50}],
+        "radiestesia": [{"nombre": "Maestro Péndulo", "goles_e1": 1, "goles_e2": 1, "oscilacion_e1": 50, "oscilacion_e2": 50}]
+    },
+    "PAR_vs_AUS": {
+        "tarotistas": [{"nombre": "Brujo Astral", "goles_e1": 0, "goles_e2": 0, "fuerza_astral": 50}],
+        "radiestesia": [{"nombre": "Maestro Péndulo", "goles_e1": 0, "goles_e2": 0, "oscilacion_e1": 50, "oscilacion_e2": 50}]
+    },
+    "CUW_vs_CIV": {
+        "tarotistas": [{"nombre": "Brujo Astral", "goles_e1": 0, "goles_e2": 2, "fuerza_astral": 75}],
+        "radiestesia": [{"nombre": "Maestro Péndulo", "goles_e1": 0, "goles_e2": 2, "oscilacion_e1": 78, "oscilacion_e2": 32}]
+    }
+}
+
+# 2. MOTOR DE SIMULACIÓN MATEMÁTICA
+def calcular_marcador_exacto(partido_id):
+    if partido_id not in PREDICCIONES_MUNDIAL:
+        print("Partido no registrado en el cosmos.")
+        return
+
+    datos = PREDICCIONES_MUNDIAL[partido_id]
+    
+    total_goles_e1_tarot = sum(t["goles_e1"] for t in datos["tarotistas"])
+    total_goles_e2_tarot = sum(t["goles_e2"] for t in datos["tarotistas"])
+    fuerza_tarot_total = sum(t["fuerza_astral"] for t in datos["tarotistas"]) / len(datos["tarotistas"])
+    
+    total_goles_e1_varillas = sum(r["goles_e1"] for r in datos["radiestesia"])
+    total_goles_e2_varillas = sum(r["goles_e2"] for r in datos["radiestesia"])
+    energia_e1_varillas = sum(r["oscilacion_e1"] for r in datos["radiestesia"]) / len(datos["radiestesia"])
+    energia_e2_varillas = sum(r["oscilacion_e2"] for r in datos["radiestesia"]) / len(datos["radiestesia"])
+
+    cant_tarot = len(datos["tarotistas"])
+    cant_varillas = len(datos["radiestesia"])
+    total_fuentes = cant_tarot + cant_varillas
+
+    marcador_final_e1 = round((total_goles_e1_tarot + total_goles_e1_varillas) / total_fuentes)
+    marcador_final_e2 = round((total_goles_e2_tarot + total_goles_e2_varillas) / total_fuentes)
+    
+    alineacion_cosmica = (fuerza_tarot_total + (energia_e1_varillas - energia_e2_varillas + 50)) / 2
+
+    print("==================================================")
+    print("🔮 SISTEMA MURIOS MATÍAS - SIMULADOR MÍSTICO 🔮")
+    print(f"Análisis para el partido: {partido_id}")
+    print("==================================================")
+    print(f"🏁 MARCADOR PREDECIDO: Equipo 1 [{marcador_final_e1}] - [{marcador_final_e2}] Equipo 2")
+    print(f"✨ Alineación cósmica: {alineacion_cosmica:.1f}%")
+    print("==================================================")
+
+if __name__ == "__main__":
+    # Probando con el partido de Turquía vs Estados Unidos de ayer
+    calcular_marcador_exacto("TUR_vs_USA")
